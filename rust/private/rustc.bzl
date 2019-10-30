@@ -182,6 +182,7 @@ def rustc_compile_action(
         toolchain,
         crate_info,
         output_hash = None,
+        is_for_host = False,
         rust_flags = []):
     """
     Constructs the rustc command used to build the current target.
@@ -240,7 +241,8 @@ def rustc_compile_action(
 
     args.add("--emit=dep-info,link")
     args.add("--color=always")
-    args.add("--target=" + toolchain.target_triple)
+    target = toolchain.exec_triple if is_for_host else toolchain.target_triple
+    args.add("--target=" + target)
     if hasattr(ctx.attr, "crate_features"):
         args.add_all(getattr(ctx.attr, "crate_features"), before_each = "--cfg", format_each = 'feature="%s"')
     if hasattr(ctx.attr, "linker_script") and linker_script != None:

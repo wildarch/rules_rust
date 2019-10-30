@@ -28,7 +28,37 @@ load(
     _rust_doc_test = "rust_doc_test",
 )
 
-rust_library = _rust_library
+def rust_library(name = None, 
+                 srcs = [], 
+                 deps = [], 
+                 edition = "2015", 
+                 crate_root = None,
+                 crate_features = [],
+                 crate_type = "rlib",
+                 rustc_flags = [],
+                 version = "0.0.0"): 
+    host_deps = [dep + "_for_host" for dep in deps]
+    _rust_library(
+        name = name,
+        srcs = srcs,
+        deps = host_deps if crate_type == "proc-macro" else deps,
+        edition = edition,
+        crate_root = crate_root,
+        crate_features = crate_features,
+        rustc_flags = rustc_flags,
+        version = version,
+    )
+    # Host version for proc-macro dependencies
+    _rust_library(
+        name = name + "_for_host",
+        srcs = srcs,
+        deps = [dep + "_for_host" for dep in deps],
+        edition = edition,
+        crate_root = crate_root,
+        crate_features = crate_features,
+        rustc_flags = rustc_flags,
+        version = version,
+    )
 """ See @io_bazel_rules_rust//rust:private/rust.bzl for a complete description. """
 
 rust_binary = _rust_binary

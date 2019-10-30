@@ -102,8 +102,16 @@ def _rust_library_impl(ctx):
     # Determine unique hash for this rlib
     output_hash = _determine_output_hash(lib_rs)
 
+    name = ctx.attr.name
+
+    is_for_host = False
+    # Fix the name for _for_host targets
+    if name.endswith('_for_host'):
+        name = name[:-len('_for_host')]
+        is_for_host = True
+
     rust_lib_name = _determine_lib_name(
-        ctx.attr.name,
+        name,
         ctx.attr.crate_type,
         toolchain,
         output_hash,
@@ -114,7 +122,7 @@ def _rust_library_impl(ctx):
         ctx = ctx,
         toolchain = toolchain,
         crate_info = CrateInfo(
-            name = ctx.label.name,
+            name = name,
             type = ctx.attr.crate_type,
             root = lib_rs,
             srcs = ctx.files.srcs,
@@ -123,6 +131,7 @@ def _rust_library_impl(ctx):
             edition = _get_edition(ctx, toolchain),
         ),
         output_hash = output_hash,
+        is_for_host = is_for_host,
     )
 
 def _rust_binary_impl(ctx):
